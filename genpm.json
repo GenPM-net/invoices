@@ -1,0 +1,41 @@
+{
+  "$": 1,
+  "n": "@core/invoices",
+  "v": "1.0.0",
+  "s": {
+    "en": "Spanish invoices from paid orders: legal numbering, simplified/full, credit notes and VeriFactu-style hash chain",
+    "es": "Facturas españolas desde pedidos: numeración legal, simplificada/completa, rectificativas y cadena de huellas VeriFactu",
+    "pt-BR": "Faturas espanholas a partir de pedidos: numeração legal, simplificada/completa, retificativas e cadeia de hashes",
+    "fr": "Factures espagnoles depuis les commandes : numérotation légale, simplifiées/complètes, avoirs et chaîne d'empreintes",
+    "de": "Spanische Rechnungen aus Bestellungen: gesetzliche Nummerierung, vereinfacht/voll, Korrekturen, Hash-Kette",
+    "ja": "注文からスペインの請求書：法定採番、簡易/完全、訂正請求書、VeriFactu 形式のハッシュチェーン",
+    "zh-CN": "从订单生成西班牙发票：合法编号、简易/完整发票、更正发票和 VeriFactu 风格哈希链",
+    "ko": "주문에서 스페인 송장 발행: 법정 번호, 간이/정식, 정정 송장, VeriFactu 방식 해시 체인"
+  },
+  "d": "src/lib/invoices",
+  "l": "MIT",
+  "k": [
+    "invoices",
+    "spain",
+    "verifactu",
+    "ecommerce",
+    "tax"
+  ],
+  "g": {
+    "@core/db": "^1.0.0",
+    "@core/orders": "^1.0.0",
+    "@core/contracts": "^1.0.0"
+  },
+  "p": {
+    "zod": "^4.0.0"
+  },
+  "e": [
+    "INVOICE_ISSUER_NIF",
+    "INVOICE_ISSUER_NAME",
+    "INVOICE_ISSUER_ADDRESS",
+    "INVOICE_SERIES",
+    "INVOICE_VAT_RATE",
+    "INVOICE_RETAIL",
+    "INVOICE_QR_ENV"
+  ]
+}
