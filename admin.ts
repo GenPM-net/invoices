@@ -2,10 +2,10 @@
 // y rectificar el total; enlace a la versión imprimible.
 import { count, desc, eq, ilike, or } from 'drizzle-orm';
 import { z } from 'zod';
-import type { AdminContext, AdminResource } from '../contracts/index.js';
-import { getDb } from '../db/index.js';
-import { InvoiceError, rectifyRefund, replaceSimplified } from './invoices.js';
-import { type Invoice, invoices } from './schema.js';
+import type { AdminContext, AdminResource } from '../contracts/index.ts';
+import { getDb } from '../db/index.ts';
+import { InvoiceError, rectifyRefund, replaceSimplified } from './invoices.ts';
+import { type Invoice, invoices } from './schema.ts';
 
 async function need(ctx: AdminContext, p: string) {
   if (!(await ctx.can(p))) throw new InvoiceError('forbidden', `forbidden: ${p}`);

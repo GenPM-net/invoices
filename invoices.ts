@@ -3,10 +3,10 @@
 // Las facturas nunca se borran ni se editan: se corrigen con rectificativas.
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { type Executor, getDb, withTransaction } from '../db/index.js';
-import { getOrder, onOrderEvent, type OrderDetail } from '../orders/index.js';
-import { type Invoice, type InvoiceLine, invoiceCounters, invoiceRecords, invoices, type Party } from './schema.js';
-import { type AltaFields, amountText, huella, madridTimestamp, qrUrl, spanishDate } from './verifactu.js';
+import { type Executor, getDb, withTransaction } from '../db/index.ts';
+import { getOrder, onOrderEvent, type OrderDetail } from '../orders/index.ts';
+import { type Invoice, type InvoiceLine, invoiceCounters, invoiceRecords, invoices, type Party } from './schema.ts';
+import { type AltaFields, amountText, huella, madridTimestamp, qrUrl, spanishDate } from './verifactu.ts';
 
 export class InvoiceError extends Error {
   constructor(

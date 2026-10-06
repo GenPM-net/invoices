@@ -1,6 +1,6 @@
 // Tablas de @core/invoices. Las recoge drizzle-kit vía src/lib/db/drizzle.config.ts.
 import { index, integer, jsonb, pgTable, primaryKey, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
-import { primaryId, timestamps } from '../db/index.js';
+import { primaryId, timestamps } from '../db/index.ts';
 
 export type Party = { name: string; taxId?: string | null; address?: string | null; country?: string | null };
 export type InvoiceLine = { description: string; quantity: number; unitPrice: number; total: number };

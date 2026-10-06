@@ -1,8 +1,8 @@
 // Factura en HTML imprimible (también para PDF con el navegador) con el contenido obligatorio del RD 1619/2012.
 // Todos los textos se escapan; el QR se pinta con la URL de cotejo (genera la imagen con una librería de QR en la app).
-import { type Invoice } from './schema.js';
-import { invoiceQrUrl } from './invoices.js';
-import { amountText, spanishDate } from './verifactu.js';
+import { type Invoice } from './schema.ts';
+import { invoiceQrUrl } from './invoices.ts';
+import { amountText, spanishDate } from './verifactu.ts';
 
 const esc = (s: unknown) => String(s ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 const eur = (c: number) => `${amountText(c).replace('.', ',')} €`;

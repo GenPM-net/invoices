@@ -1,15 +1,15 @@
 import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
-import * as authSchema from '../auth/schema.js';
-import * as catalogSchema from '../catalog/schema.js';
-import { testDb } from '../db/__fixtures__/pglite.js';
-import type { Db } from '../db/index.js';
-import { setEmailProvider } from '../email/index.js';
-import { runDue } from '../jobs/index.js';
-import * as jobsSchema from '../jobs/schema.js';
-import { clearPaymentProviders, createOrder, registerPaymentProvider, refundOrder } from '../orders/index.js';
-import * as ordersSchema from '../orders/schema.js';
-import * as schema from './schema.js';
+import * as authSchema from '../auth/schema.ts';
+import * as catalogSchema from '../catalog/schema.ts';
+import { testDb } from '../db/__fixtures__/pglite.ts';
+import type { Db } from '../db/index.ts';
+import { setEmailProvider } from '../email/index.ts';
+import { runDue } from '../jobs/index.ts';
+import * as jobsSchema from '../jobs/schema.ts';
+import { clearPaymentProviders, createOrder, registerPaymentProvider, refundOrder } from '../orders/index.ts';
+import * as ordersSchema from '../orders/schema.ts';
+import * as schema from './schema.ts';
 import {
   amountText,
   huella,
@@ -25,7 +25,7 @@ import {
   spanishDate,
   split,
   verifyChain,
-} from './index.js';
+} from './index.ts';
 
 let db: Db;
 const admin = { user: { id: 'u', email: null, name: null }, can: async () => true };
