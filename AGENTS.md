@@ -14,7 +14,7 @@ certified billing system. Deadlines changed several times (RD-ley 15/2025 set 20
 announced a move to October 2028): check the current official calendar with the AEAT or a tax advisor.
 
 ## Map
-- `index.ts` — `invoiceOrder`, `rectifyRefund`, `replaceSimplified`, `verifyChain`, `invoiceHtml`, `invoiceQrUrl`, `invoicesAdminResource`.
+- `index.ts` — `invoiceOrder`, `rectifyRefund`, `rectifyInFull`, `remainingToRectify`, `replaceSimplified`, `verifyChain`, `invoiceHtml`, `invoiceQrUrl`, `invoicesAdminResource`.
 - `invoices.ts` — issuing and order events. `verifactu.ts` — hash input, hash, Madrid dates, amounts, QR URL. `html.ts` — printable invoice.
 
 ## Integration
@@ -31,6 +31,8 @@ announced a move to October 2028): check the current official calendar with the 
    `verifyChain(nif)` returns `ok: true`.
 
 ## Conventions
+- Lines add up to the total: products at their pre-discount amount, one "Discount" line, "Shipping (<method>)" and "Tax" if added on top.
+- "Rectify in full" (admin, `rectifyInFull`) credits only what earlier credit notes left; it refuses when nothing remains.
 - All lines use one VAT rate in 1.0; mixed rates (reduced, exempt) need per-line taxes before using this package.
 - Issue invoices in EUR only; convert other currencies before.
 - Keep invoices and records at least as long as tax law requires (typically 4–6 years); never prune these tables.

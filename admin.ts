@@ -4,7 +4,7 @@ import { count, desc, eq, ilike, or } from 'drizzle-orm';
 import { z } from 'zod';
 import type { AdminContext, AdminResource } from '../contracts/index.ts';
 import { getDb } from '../db/index.ts';
-import { InvoiceError, rectifyRefund, replaceSimplified } from './invoices.ts';
+import { InvoiceError, rectifyInFull, replaceSimplified } from './invoices.ts';
 import { type Invoice, invoices } from './schema.ts';
 
 async function need(ctx: AdminContext, p: string) {
@@ -60,9 +60,8 @@ export const invoicesAdminResource = (opts: { printPath?: (inv: Invoice) => stri
       available: (i) => ['F1', 'F2', 'F3'].includes(i.type) && !!i.orderId,
       async run(id, _i, ctx) {
         await need(ctx, 'invoices:create');
-        const [inv] = await getDb().select().from(invoices).where(eq(invoices.id, id));
-        if (!inv?.orderId) throw new InvoiceError('not_found');
-        return rectifyRefund(inv.orderId, `manual-${inv.id}`, inv.total);
+        // Solo lo que quede sin rectificar (reembolsos anteriores ya tienen su rectificativa).
+        return rectifyInFull(id);
       },
     },
   ],

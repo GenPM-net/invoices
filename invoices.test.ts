@@ -129,6 +129,35 @@ describe('issuing invoices', () => {
   });
 });
 
+describe('lines and partial credit notes', () => {
+  it('lines add up to the total (discount counted once) and shipping shows the method name', async () => {
+    const o = await paidOrder(0, {
+      lines: [
+        { variantId: null, productId: null, sku: null, name: 'Mug', title: '', kind: 'physical', quantity: 2, unitPrice: 1000, discount: 200 },
+        { variantId: null, productId: null, sku: null, name: 'Plate', title: '', kind: 'physical', quantity: 1, unitPrice: 1500, discount: 100 },
+      ],
+      discounts: [{ source: 'discounts', label: '10%', amount: 300, code: 'TEN' }],
+      shipping: { label: 'Standard', amount: 499 },
+    });
+    const inv = await invoiceOrder(o.id);
+    expect(inv.total).toBe(3699);
+    expect(inv.lines.reduce((a, l) => a + l.total, 0)).toBe(inv.total);
+    expect(inv.lines.map((l) => [l.description, l.total])).toEqual([['Mug', 2000], ['Plate', 1500], ['Discount', -300], ['Shipping (Standard)', 499]]);
+  });
+
+  it('a full credit note after a partial refund only rectifies what remains, and nothing remains afterwards', async () => {
+    const o = await paidOrder(3000);
+    const inv = await invoiceOrder(o.id);
+    await rectifyRefund(o.id, 're_1', 1000);
+    const res = invoicesAdminResource();
+    const credit = await res.actions!.find((a) => a.name === 'rectify-total')!.run(inv.id, {}, admin);
+    expect(credit).toMatchObject({ type: 'R5', total: -2000 });
+    const all = await db.select().from(invoices).where(eq(invoices.orderId, o.id));
+    expect(all.reduce((a, i) => a + i.total, 0)).toBe(0);
+    await expect(res.actions!.find((a) => a.name === 'rectify-total')!.run(inv.id, {}, admin)).rejects.toMatchObject({ code: 'invalid_state' });
+  });
+});
+
 describe('order events, printing and admin', () => {
   it('invoices on payment and rectifies on refund through @core/orders events', async () => {
     const o = await paidOrder(3000);
@@ -159,6 +188,7 @@ describe('order events, printing and admin', () => {
     expect(await res.links!(inv, admin)).toEqual([{ label: 'Print / PDF', href: `/invoices/${inv.number}` }]);
     const credit = await res.actions!.find((a) => a.name === 'rectify-total')!.run(inv.id, {}, admin);
     expect(credit).toMatchObject({ type: 'R5', total: -1999 });
+    await expect(res.actions!.find((a) => a.name === 'rectify-total')!.run(inv.id, {}, admin)).rejects.toMatchObject({ code: 'invalid_state' });
     await expect(res.list({ page: 1, pageSize: 10 }, { ...admin, can: async () => false })).rejects.toMatchObject({ code: 'forbidden' });
   });
 });

@@ -96,10 +96,15 @@ async function issue(tx: Executor, d: Draft): Promise<Invoice> {
 
 const tx = <T>(db: Executor, fn: (t: Executor) => Promise<T>) => ('rollback' in db ? fn(db) : withTransaction(fn, db as Parameters<typeof withTransaction>[1]));
 
-const linesOf = (o: OrderDetail): InvoiceLine[] => [
-  ...o.lines.map((l) => ({ description: `${l.name}${l.title ? ` · ${l.title}` : ''}`, quantity: l.quantity, unitPrice: l.unitPrice, total: l.total })),
+/**
+ * Líneas de la factura: cada producto por su importe antes de descuentos (`subtotal`), una línea de descuento con el
+ * total descontado, el envío (con el nombre del método) y los impuestos añadidos si los hay. Suman exactamente `total`.
+ */
+export const linesOf = (o: OrderDetail): InvoiceLine[] => [
+  ...o.lines.map((l) => ({ description: `${l.name}${l.title ? ` · ${l.title}` : ''}`, quantity: l.quantity, unitPrice: l.unitPrice, total: l.subtotal })),
   ...(o.discountTotal ? [{ description: 'Discount', quantity: 1, unitPrice: -o.discountTotal, total: -o.discountTotal }] : []),
-  ...(o.shippingTotal ? [{ description: `Shipping${o.shippingMethod ? ` (${o.shippingMethod})` : ''}`, quantity: 1, unitPrice: o.shippingTotal, total: o.shippingTotal }] : []),
+  ...(o.shippingTotal ? [{ description: `Shipping${o.shippingMethod?.label ? ` (${o.shippingMethod.label})` : ''}`, quantity: 1, unitPrice: o.shippingTotal, total: o.shippingTotal }] : []),
+  ...(o.taxTotal ? [{ description: 'Tax', quantity: 1, unitPrice: o.taxTotal, total: o.taxTotal }] : []),
 ];
 
 const recipientOf = (o: OrderDetail): Party | null => {
@@ -139,6 +144,27 @@ export async function rectifyRefund(orderId: string, refundId: string, amount: n
       currency: original.currency,
       total: -amount,
     });
+  });
+}
+
+/** Importe aún sin rectificar del pedido: su última factura (F1/F2/F3) más las rectificativas (negativas) ya emitidas. */
+export async function remainingToRectify(orderId: string, db: Executor = getDb()): Promise<number> {
+  const [original] = await db.select().from(invoices).where(and(eq(invoices.orderId, orderId), sql`${invoices.type} in ('F1','F2','F3')`)).orderBy(desc(invoices.issuedAt)).limit(1);
+  if (!original) return 0;
+  const [r] = await db.select({ n: sql<number>`coalesce(sum(${invoices.total}), 0)`.mapWith(Number) }).from(invoices).where(and(eq(invoices.orderId, orderId), sql`${invoices.type} in ('R1','R5')`));
+  return original.total + (r?.n ?? 0);
+}
+
+/** Rectifica lo que quede del pedido de la factura `invoiceId` (abono total); falla si ya no queda nada. */
+export async function rectifyInFull(invoiceId: string, db: Executor = getDb()): Promise<Invoice> {
+  return tx(db, async (t) => {
+    const [inv] = await t.select().from(invoices).where(eq(invoices.id, invoiceId));
+    if (!inv?.orderId) throw new InvoiceError('not_found');
+    // Serializa los abonos del pedido para que dos simultáneos no rectifiquen dos veces lo mismo.
+    await t.execute(sql`select pg_advisory_xact_lock(hashtext(${`invoices:rectify:${inv.orderId}`}))`);
+    const remaining = await remainingToRectify(inv.orderId, t);
+    if (remaining <= 0) throw new InvoiceError('invalid_state', 'nothing left to rectify on this order');
+    return rectifyRefund(inv.orderId, `manual-${inv.id}-${remaining}`, remaining, t);
   });
 }
 
