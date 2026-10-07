@@ -10,8 +10,10 @@ or deleted. Tables: `invoices`, `invoice_counters`, `invoice_records`.
 
 **Scope of 1.0 (tell the person):** this package prepares the data required by RD 1007/2023 and Order HAC/1177/2024,
 but it does not yet sign records (non-VeriFactu mode) nor send them to the AEAT (VeriFactu mode), and it is not a
-certified billing system. Deadlines changed several times (RD-ley 15/2025 set 2027; in October 2026 the Ministry
-announced a move to October 2028): check the current official calendar with the AEAT or a tax advisor.
+certified billing system. Deadlines changed several times. In force (BOE, RD-ley 15/2025): billing systems adapted
+before 1 Jan 2027 (corporate income tax payers) and 1 Jul 2027 (everyone else). On 5 Oct 2026 the Ministry announced
+a planned move to October 2028, not yet published in the BOE (checked 7 Oct 2026). Check the current official
+calendar with the AEAT or a tax advisor before relying on either date.
 
 ## Map
 - `index.ts` — `invoiceOrder`, `rectifyRefund`, `rectifyInFull`, `remainingToRectify`, `replaceSimplified`, `verifyChain`, `invoiceHtml`, `invoiceQrUrl`, `invoicesAdminResource`.

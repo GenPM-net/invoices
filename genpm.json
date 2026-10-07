@@ -1,7 +1,7 @@
 {
   "$": 1,
   "n": "@core/invoices",
-  "v": "1.0.1",
+  "v": "1.0.2",
   "s": {
     "en": "Spanish invoices from paid orders: legal numbering, simplified/full, credit notes and VeriFactu-style hash chain",
     "es": "Facturas españolas desde pedidos: numeración legal, simplificada/completa, rectificativas y cadena de huellas VeriFactu",
