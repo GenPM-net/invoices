@@ -32,6 +32,29 @@ before 1 Jan 2027 (corporate income tax payers) and 1 Jul 2027 (everyone else). 
 a planned move to October 2028, not yet published in the BOE (checked 7 Oct 2026). Check the current official
 calendar with the AEAT or a tax advisor before relying on either date.
 
+## Setup
+
+After `genpm add`, follow these steps (your AI agent finds the same steps in `src/lib/invoices/AGENTS.md` and can do them for you):
+
+1. Env: `INVOICE_ISSUER_NIF`, `INVOICE_ISSUER_NAME`, `INVOICE_ISSUER_ADDRESS`; optional `INVOICE_SERIES` (default `A`;
+   credit notes use `<series>R`), `INVOICE_VAT_RATE` (default 21, prices include VAT), `INVOICE_RETAIL=1` (simplified
+   limit 3,000 € instead of 400 €), `INVOICE_QR_ENV=test` while testing.
+2. Migrations as in `src/lib/db/AGENTS.md`. Import `@/lib/invoices` once at startup (e.g. `src/genpm/commerce.ts`):
+   it issues invoices when orders are paid and credit notes when they are refunded (background jobs, retried).
+3. Admin: add `invoicesAdminResource({ printPath: (i) => \`/invoices/${i.number}\` })` to `src/genpm/admin.ts`.
+4. Printable page for the owner (protected by `invoices:read`) or the customer (signed order link):
+   return `new Response(invoiceHtml(inv, { qrImageSrc }), { headers: { 'content-type': 'text/html' } })`. Generate the QR
+   image from `invoiceQrUrl(inv)` with a QR library in the app.
+5. Verify: pay a test order → invoice `A<year>-000001`; refund part → credit note `AR<year>-000001` with a negative total;
+   `verifyChain(nif)` returns `ok: true`.
+
+## What's inside
+
+Paths are relative to `src/lib/invoices`.
+
+- `index.ts` — `invoiceOrder`, `rectifyRefund`, `rectifyInFull`, `remainingToRectify`, `replaceSimplified`, `verifyChain`, `invoiceHtml`, `invoiceQrUrl`, `invoicesAdminResource`.
+- `invoices.ts` — issuing and order events. `verifactu.ts` — hash input, hash, Madrid dates, amounts, QR URL. `html.ts` — printable invoice.
+
 ## At a glance
 
 - **GenPM dependencies** (installed with it): [@core/db](https://genpm.net/p/@core/db), [@core/orders](https://genpm.net/p/@core/orders), [@core/contracts](https://genpm.net/p/@core/contracts)
